@@ -18,3 +18,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
+
+jwt:
+  secret: cB2kEC8YoIgACzW75Uw63TxJWzk5fLgBbcW98q0H4jM=
+
