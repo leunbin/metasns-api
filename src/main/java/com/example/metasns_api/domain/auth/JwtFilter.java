@@ -49,6 +49,7 @@ public class JwtFilter extends OncePerRequestFilter {
             //4. 토큰에서 사용자 정보 추출하기
             String authentication = tokenProvider.getAuthentication(jwt);
 
+
             User user = userRepository.findByEmail(authentication)
                     .orElseThrow(() ->
                             new AuthException(
