@@ -22,3 +22,11 @@ spring:
 jwt:
   secret: cB2kEC8YoIgACzW75Uw63TxJWzk5fLgBbcW98q0H4jM=
 
+storage:
+  endpoint: testEndpoint
+  path: testPath
+  access-key: testAccessKey
+  secret-key: testSecretKey
+  bucket: testBucket
+  image-dir: testImageDir
+

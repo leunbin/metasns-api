@@ -14,3 +14,11 @@ spring:
 
   jwt:
     secret: ${JWT_SECRET}
+
+storage:
+  endpoint: ${STORAGE_ENDPOINT}
+  path: ${STORAGE_PATH}
+  access-key: ${STORAGE_ACCESS_KEY}
+  secret-key: ${STORAGE_SECRET_KEY}
+  bucket: ${STORAGE_BUCKET}
+  image-dir: ${STORAGE_IMAGE_DIR}

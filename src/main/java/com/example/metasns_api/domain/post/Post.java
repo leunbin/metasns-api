@@ -15,10 +15,10 @@ public class Post {
 
     @Id
     @GeneratedValue
-    private Long id;
+    private long id;
 
     @Column
-    private Long authorId;
+    private long authorId;
 
     @Column
     private String title;

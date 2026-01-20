@@ -30,6 +30,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-h2console'
     implementation 'com.h2database:h2'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'io.minio:minio:8.5.9'
     runtimeOnly 'com.mysql:mysql-connector-j'
     compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'

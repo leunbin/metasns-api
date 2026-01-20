@@ -17,7 +17,7 @@ public class User {
 
     @Id
     @GeneratedValue
-    private Long id;
+    private long id;
 
     @Column
     private String email;
