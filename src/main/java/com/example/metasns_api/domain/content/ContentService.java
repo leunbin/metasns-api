@@ -9,6 +9,7 @@ import com.example.metasns_api.domain.post.Post;
 import com.example.metasns_api.domain.post.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,6 +32,8 @@ public class ContentService {
     private final PostRepository postRepository;
 
     private final MinioService minioService;
+
+    private final ContentAsyncUploader contentAsyncUploader;
 
     private void validate(MultipartFile file){
         if(file.isEmpty()){
@@ -91,21 +94,20 @@ public class ContentService {
                 .toList();
     }
 
-    public void uploadContent(MultipartFile file, Long postId, Long userId){
+    //일단 업로딩중으로 요청 보냄
+    public void requestUpload(MultipartFile file, Long postId, Long userId){
         validate(file);
-
-        String objectKey = minioService.uploadImage(file);
-
         Content content = Content.builder()
                 .postId(postId)
                 .uploaderId(userId)
                 .fileName(file.getOriginalFilename())
-                .objectKey(objectKey)
                 .fileSize(file.getSize())
                 .contentType(file.getContentType())
                 .build();
 
         contentRepository.save(content);
+
+        contentAsyncUploader.upload(content.getId(), file);
     }
 
     public DownloadUrlResponse getDownloadUrl(Long contentId){

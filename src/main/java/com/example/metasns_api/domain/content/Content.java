@@ -58,6 +58,10 @@ public class Content {
         this.checksum = checksum;
     }
 
+    public void updateObjectKey(String objectKey){
+        this.objectKey = objectKey;
+    }
+
     public void changeAvailable(){
         this.status = ContentStatus.AVAILABLE;
     }

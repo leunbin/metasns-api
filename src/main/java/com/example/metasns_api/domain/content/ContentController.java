@@ -60,9 +60,9 @@ public class ContentController {
             );
         }
 
-        contentService.uploadContent(file, postId, user.getId());
+        contentService.requestUpload(file, postId, user.getId());
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.accepted().build();
     }
 
     @GetMapping("/content/{contentId}")
