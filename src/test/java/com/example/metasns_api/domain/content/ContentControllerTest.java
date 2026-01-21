@@ -91,9 +91,9 @@ class ContentControllerTest {
         mockMvc.perform(multipart("/api/v1/post/{postId}/contents",1L)
                 .file(file)
                 .requestAttr("user",user))
-                .andExpect(status().isCreated());
+                .andExpect(status().isAccepted());
 
-        verify(contentService).uploadContent(any(MultipartFile.class), eq(1L), eq(10L));
+        verify(contentService).requestUpload(any(MultipartFile.class), eq(1L), eq(10L));
     }
 
     @Test

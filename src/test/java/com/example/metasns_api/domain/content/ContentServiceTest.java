@@ -1,7 +1,6 @@
 package com.example.metasns_api.domain.content;
 
 import com.example.metasns_api.common.exception.ContentException;
-import com.example.metasns_api.common.exception.MinioException;
 import com.example.metasns_api.common.exception.PostException;
 import com.example.metasns_api.domain.content.dto.ContentFileResponse;
 import com.example.metasns_api.domain.content.dto.ContentFileStatusResponse;
@@ -14,9 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -39,6 +36,9 @@ class ContentServiceTest {
 
     @Mock
     PostRepository postRepository;
+
+    @Mock
+    ContentAsyncUploader contentAsyncUploader;
 
     @InjectMocks
     ContentService contentService;
@@ -97,13 +97,11 @@ class ContentServiceTest {
         Long userId = 10L;
         Long postId = 1L;
 
-        given(minioService.uploadImage(file))
-                .willReturn("contents/images/uuid-test.png");
+        contentService.requestUpload(file,postId,userId);
 
-        contentService.uploadContent(file, postId, userId);
-
-        verify(minioService).uploadImage(file);
         verify(contentRepository).save(any(Content.class));
+        verify(contentAsyncUploader).upload(anyLong(), eq(file));
+        verifyNoInteractions(minioService);
     }
 
     @Test
@@ -113,30 +111,11 @@ class ContentServiceTest {
         );
 
         assertThatThrownBy(()->
-            contentService.uploadContent(file,10L, 1L)
+            contentService.requestUpload(file,10L, 1L)
         ).isInstanceOf(ContentException.class);
 
         verifyNoInteractions(minioService);
         verify(contentRepository, never()).save(any());
-    }
-
-    @Test
-    void upload_fail_when_minio_error(){
-        MultipartFile file = new MockMultipartFile(
-                "test", "test.png", "image/png", new byte[1024]
-        );
-
-        given(minioService.uploadImage(file))
-                .willThrow(new MinioException(
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                        "업로드 실패"
-                ));
-
-        assertThatThrownBy(()->
-            contentService.uploadContent(file,10L, 1L)
-        ).isInstanceOf(MinioException.class);
-
-        verify(contentRepository,never()).save(any());
     }
 
     @Test
