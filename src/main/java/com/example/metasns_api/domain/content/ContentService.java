@@ -4,21 +4,23 @@ import com.example.metasns_api.common.exception.ContentException;
 import com.example.metasns_api.common.exception.PostException;
 import com.example.metasns_api.domain.content.dto.ContentFileResponse;
 import com.example.metasns_api.domain.content.dto.ContentFileStatusResponse;
+import com.example.metasns_api.domain.content.dto.ContentUploadEvent;
 import com.example.metasns_api.domain.content.dto.DownloadUrlResponse;
 import com.example.metasns_api.domain.post.Post;
 import com.example.metasns_api.domain.post.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ContentService {
     private static final long MAX_IMAGE_SIZE = 5 * 1024 * 1024;
     private static final List<String> ALLOWED_CONTENT_TYPES = List.of(
@@ -34,6 +36,8 @@ public class ContentService {
     private final MinioService minioService;
 
     private final ContentAsyncUploader contentAsyncUploader;
+
+    private final ApplicationEventPublisher eventPublisher;
 
     private void validate(MultipartFile file){
         System.out.println("contentType: "+ file.getContentType() + "size: "+file.getSize());
@@ -96,6 +100,7 @@ public class ContentService {
     }
 
     //일단 업로딩중으로 요청 보냄
+    @Transactional
     public void requestUpload(MultipartFile file, Long postId, Long userId){
         validate(file);
         Content content = Content.builder()
@@ -105,10 +110,20 @@ public class ContentService {
                 .fileSize(file.getSize())
                 .contentType(file.getContentType())
                 .build();
-
         contentRepository.save(content);
 
-        contentAsyncUploader.upload(content.getId(), file);
+        byte[] fileData;
+        try{
+            fileData = file.getBytes();
+        } catch (IOException e){
+            throw new ContentException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 읽기 실패");
+        }
+        eventPublisher.publishEvent(new ContentUploadEvent(
+                content.getId(),
+                fileData,
+                file.getOriginalFilename(),
+                file.getContentType()
+        ));
     }
 
     public DownloadUrlResponse getDownloadUrl(Long contentId){

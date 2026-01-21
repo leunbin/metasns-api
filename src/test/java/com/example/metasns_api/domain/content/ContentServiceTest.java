@@ -4,6 +4,7 @@ import com.example.metasns_api.common.exception.ContentException;
 import com.example.metasns_api.common.exception.PostException;
 import com.example.metasns_api.domain.content.dto.ContentFileResponse;
 import com.example.metasns_api.domain.content.dto.ContentFileStatusResponse;
+import com.example.metasns_api.domain.content.dto.ContentUploadEvent;
 import com.example.metasns_api.domain.content.dto.DownloadUrlResponse;
 import com.example.metasns_api.domain.post.Post;
 import com.example.metasns_api.domain.post.PostRepository;
@@ -13,7 +14,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -38,7 +41,7 @@ class ContentServiceTest {
     PostRepository postRepository;
 
     @Mock
-    ContentAsyncUploader contentAsyncUploader;
+    ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     ContentService contentService;
@@ -97,10 +100,16 @@ class ContentServiceTest {
         Long userId = 10L;
         Long postId = 1L;
 
-        contentService.requestUpload(file,postId,userId);
+        Content content = Content.builder().build();
+        ReflectionTestUtils.setField(content, "id", 100L);
+        given(contentRepository.save(any(Content.class))).willReturn(content);
+
+        contentService.requestUpload(file, postId, userId);
 
         verify(contentRepository).save(any(Content.class));
-        verify(contentAsyncUploader).upload(anyLong(), eq(file));
+
+        verify(eventPublisher).publishEvent(any(ContentUploadEvent.class));
+
         verifyNoInteractions(minioService);
     }
 

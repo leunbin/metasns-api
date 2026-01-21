@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -33,15 +34,15 @@ public class MinioService {
         return PATH + "/" + IMAGE_DIR + "/" + UUID.randomUUID() + "-" + originalFilename;
     }
 
-    public String uploadImage(MultipartFile file){
+    public String uploadImage(byte[] data, String originalFilename, String contentType){
         try{
-            String objectKey = generateImageObjectKey(file.getOriginalFilename());
+            String objectKey = generateImageObjectKey(originalFilename);
 
             minioClient.putObject(PutObjectArgs.builder()
                             .bucket(BUCKET_NAME)
                             .object(objectKey)
-                            .stream(file.getInputStream(), file.getSize(), -1)
-                            .contentType(file.getContentType())
+                            .stream(new ByteArrayInputStream(data), data.length, -1)
+                            .contentType(contentType)
                             .build());
             return objectKey;
         } catch (Exception e){

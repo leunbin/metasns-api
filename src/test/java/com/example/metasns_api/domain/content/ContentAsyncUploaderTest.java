@@ -1,5 +1,6 @@
 package com.example.metasns_api.domain.content;
 
+import com.example.metasns_api.domain.content.dto.ContentUploadEvent;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,12 +35,14 @@ public class ContentAsyncUploaderTest {
         Content  content = Content.builder().build();
         ReflectionTestUtils.setField(content, "id",1L);
 
+        ContentUploadEvent event = new ContentUploadEvent(1L, "test".getBytes(), "test.png", "image/png");
+
         given(contentRepository.findById(1L))
                 .willReturn(Optional.of(content));
-        given(minioService.uploadImage(any()))
+        given(minioService.uploadImage(any(byte[].class), anyString(), anyString()))
                 .willReturn("object-key");
 
-        contentAsyncUploader.upload(1L, mock(MultipartFile.class));
+        contentAsyncUploader.handle(event);
 
         assertThat(content.getStatus()).isEqualTo(ContentStatus.AVAILABLE);
     }
@@ -49,12 +52,15 @@ public class ContentAsyncUploaderTest {
         Content content = Content.builder().build();
         ReflectionTestUtils.setField(content, "id", 1L);
 
+        ContentUploadEvent event = new ContentUploadEvent(1L, "test".getBytes(), "test.png", "image/png");
+
         given(contentRepository.findById(1L))
                 .willReturn(Optional.of(content));
-        given(minioService.uploadImage(any()))
-                .willThrow(new RuntimeException());
 
-        contentAsyncUploader.upload(1L, mock(MultipartFile.class));
+        given(minioService.uploadImage(any(byte[].class), anyString(), anyString()))
+                .willThrow(new RuntimeException("MinIO Error"));
+
+        contentAsyncUploader.handle(event);
 
         assertThat(content.getStatus()).isEqualTo(ContentStatus.FAILED);
     }

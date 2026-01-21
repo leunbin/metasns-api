@@ -15,8 +15,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 
 import static org.mockito.Mockito.verify;
@@ -80,8 +79,8 @@ class ContentIntegrationTest {
                 new User("test@test.com", "password")
         );
 
-        given(minioService.uploadImage(any()))
-                .willReturn("contents/images/test/png");
+        given(minioService.uploadImage(any(byte[].class), anyString(), anyString()))
+                .willReturn("contents/images/test.png");
 
         String token = tokenProvider.generatedTokenDTO(user).getAccessToken();
 
