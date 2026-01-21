@@ -36,6 +36,7 @@ public class ContentService {
     private final ContentAsyncUploader contentAsyncUploader;
 
     private void validate(MultipartFile file){
+        System.out.println("contentType: "+ file.getContentType() + "size: "+file.getSize());
         if(file.isEmpty()){
             throw new ContentException(
                     HttpStatus.NO_CONTENT,

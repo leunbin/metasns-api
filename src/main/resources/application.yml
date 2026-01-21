@@ -15,6 +15,11 @@ spring:
   jwt:
     secret: ${JWT_SECRET}
 
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
 storage:
   endpoint: ${STORAGE_ENDPOINT}
   path: ${STORAGE_PATH}

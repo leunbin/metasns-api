@@ -59,7 +59,7 @@ public class ContentController {
                     "로그인이 필요합니다."
             );
         }
-
+        System.out.println("contentType: "+ file.getContentType() + "size: "+file.getSize());
         contentService.requestUpload(file, postId, user.getId());
 
         return ResponseEntity.accepted().build();
