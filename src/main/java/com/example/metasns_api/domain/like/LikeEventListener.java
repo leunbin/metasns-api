@@ -18,7 +18,7 @@ public class LikeEventListener {
     @Async
     @EventListener
     public void handle(LikeEvent event){
-        String key = "post: "+event.postId()+":like_count";
+        String key = "post:"+event.postId()+":like_count";
 
         if(event.type() == LikeEventType.LIKE){
             redisLikeCounter.increment(key);

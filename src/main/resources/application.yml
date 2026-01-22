@@ -9,6 +9,8 @@ spring:
 
   jpa:
     show-sql: true
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
       ddl-auto: update
 

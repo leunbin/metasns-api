@@ -42,8 +42,6 @@ public class LikeService {
 
     //좋아요 취소
     public void unlike(Long postId, Long userId){
-        System.out.println("postId: "+postId);
-        System.out.println("userId: "+userId);
 
         Like like = likeRepository.findByPostIdAndUserId(postId,userId)
                 .orElseThrow(()->
@@ -52,8 +50,6 @@ public class LikeService {
                                 "좋아요 상태가 아닙니다."
                         )
                 );
-
-        System.out.println("[likeservice] 데이터 찾기 성공! ID: " + like.getId());
 
         likeRepository.delete(like);
 
@@ -64,7 +60,7 @@ public class LikeService {
 
     //좋아요 수 조회
     public long getLikeCount(Long postId){
-        String key = "post: "+postId+":like_count";
+        String key = "post:"+postId+":like_count";
 
         Long count = redisLikeCounter.get(key);
 
