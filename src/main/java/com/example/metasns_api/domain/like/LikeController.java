@@ -47,6 +47,7 @@ public class LikeController {
             HttpServletRequest request
     ){
         User user = (User) request.getAttribute("user");
+        System.out.println("user: " + user);
 
         if(user == null){
             throw new AuthException(

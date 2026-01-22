@@ -22,7 +22,7 @@ public class LikeService {
     public void like(Long postId, Long userId){
         if(likeRepository.existsByPostIdAndUserId(postId, userId)){
             throw new LikeException(
-                    HttpStatus.MULTI_STATUS,
+                    HttpStatus.BAD_REQUEST,
                     "이미 좋아요를 누른 상태입니다."
             );
         }
@@ -42,14 +42,18 @@ public class LikeService {
 
     //좋아요 취소
     public void unlike(Long postId, Long userId){
+        System.out.println("postId: "+postId);
+        System.out.println("userId: "+userId);
 
         Like like = likeRepository.findByPostIdAndUserId(postId,userId)
                 .orElseThrow(()->
                         new LikeException(
-                                HttpStatus.MULTI_STATUS,
+                                HttpStatus.BAD_REQUEST,
                                 "좋아요 상태가 아닙니다."
                         )
                 );
+
+        System.out.println("[likeservice] 데이터 찾기 성공! ID: " + like.getId());
 
         likeRepository.delete(like);
 

@@ -27,8 +27,8 @@ public class JwtFilter extends OncePerRequestFilter {
     //헤더에서 토큰 정보 가져오기
     private String resolveToken(HttpServletRequest request){
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)){
-            return bearerToken.split(" ")[1].trim();
+        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX + " ")){
+            return bearerToken.substring(7).trim();
         }
 
         return null;
@@ -37,29 +37,43 @@ public class JwtFilter extends OncePerRequestFilter {
     // 실제 필터링 로직은 doFilterInternal에 들어감
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        try{
+            if("OPTIONS".equalsIgnoreCase(request.getMethod())){
+                filterChain.doFilter(request, response);
+                return;
+            }
 
-        //1. 요청 헤더에서 토큰 꺼내기
-        String jwt = resolveToken(request);
+            //1. 요청 헤더에서 토큰 꺼내기`
+            String jwt = resolveToken(request);
 
-        //2. validateToken으로 유효성 검사
-        if(StringUtils.hasText(jwt)){
-            //3. 유효성 검사(실패시 AuthException 바로 던지기)
-            tokenProvider.validateToken(jwt);
+            //2. validateToken으로 유효성 검사
+            if(StringUtils.hasText(jwt)){
+                //3. 유효성 검사(실패시 AuthException 바로 던지기)
+                tokenProvider.validateToken(jwt);
 
-            //4. 토큰에서 사용자 정보 추출하기
-            String authentication = tokenProvider.getAuthentication(jwt);
+                //4. 토큰에서 사용자 정보 추출하기
+                String authentication = tokenProvider.getAuthentication(jwt);
+                System.out.println("authentication: "+authentication);
 
 
-            User user = userRepository.findByEmail(authentication)
-                    .orElseThrow(() ->
-                            new AuthException(
-                                    HttpStatus.UNAUTHORIZED,
-                                    "인증된 사용자를 찾을 수 없습니다."
-                            )
-                    );
 
-            request.setAttribute("user", user);
+                User user = userRepository.findByEmail(authentication)
+                        .orElseThrow(() ->
+                                new AuthException(
+                                        HttpStatus.UNAUTHORIZED,
+                                        "인증된 사용자를 찾을 수 없습니다."
+                                )
+                        );
+
+                request.setAttribute("user", user);
+            }
+            filterChain.doFilter(request, response);
+        } catch (AuthException e){
+            response.setStatus(e.getStatus().value());
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write(
+                    "{\"message\":\"" + e.getMessage() + "\"}"
+            );
         }
-        filterChain.doFilter(request, response);
     }
 }
