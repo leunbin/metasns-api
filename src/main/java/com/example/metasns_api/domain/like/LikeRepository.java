@@ -1,6 +1,7 @@
 package com.example.metasns_api.domain.like;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -13,4 +14,9 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
 
     //redis fallback
     long countByPostId(Long postId);
+
+    long countByPostIdAndUserId(Long postId, Long userId);
+
+    @Transactional
+    void deleteByPostIdAndUserId(Long postId, Long userId);
 }

@@ -7,3 +7,9 @@ export function jsonHeaders(token){
         },
     };
 }
+
+export function uploadHeaders(token){
+    return {
+        "Authorization": token ? `Bearer ${token}` : undefined,
+    };
+}

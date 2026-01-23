@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3307/metasns_concurrency
+    username: metasns
+    password: metasns_pw
+
+    hikari:
+      maximum-pool-size: 100
+      connection-timeout: 5000
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+storage:
+  endpoint: http://localhost:9000
+  path: contents
+  access-key: minio
+  secret-key: miniosecret
+  bucket: contents
+  image-dir: images
+
+jwt:
+  secret: cB2kEC8YoIgACzW75Uw63TxJWzk5fLgBbcW98q0H4jM=
